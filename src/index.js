@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom/client";
 
 import NewTaskForm from "./components/new-task-form/new-task-form";
@@ -7,40 +7,80 @@ import Footer from "./components/footer/footer";
 
 import "./index.css";
 
-const App = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      description: "Completed task",
-      completed: true,
-      created: new Date(Date.now() - 17000),
-    },
-    {
-      id: 2,
-      description: "Editing task",
-      completed: false,
-      created: new Date(Date.now() - 300000),
-      editing: true,
-    },
-    {
-      id: 3,
-      description: "Active task",
-      completed: false,
-      created: new Date(Date.now() - 300000),
-    },
-  ]);
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tasks: [
+        {
+          id: 1,
+          description: "Completed task",
+          completed: true,
+          created: new Date(Date.now() - 17000),
+        },
+        {
+          id: 2,
+          description: "Editing task",
+          completed: false,
+          created: new Date(Date.now() - 300000),
+          editing: true,
+        },
+        {
+          id: 3,
+          description: "Active task",
+          completed: false,
+          created: new Date(Date.now() - 300000),
+        },
+      ],
+    };
+  }
 
-  return (
-    <section className="todoapp">
-      <header className="header">
-        <h1>todos</h1>
-        <NewTaskForm setTasks={setTasks} />
-      </header>
-      <TaskList tasks={tasks} setTasks={setTasks} />
-      <Footer />
-    </section>
-  );
-};
+  //обработчик изменения статуса задачи
+  handleTaskToggle = (id) => {
+    this.setState((prevState) => ({
+      tasks: prevState.tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      ),
+    }));
+  };
+
+  //обработчик удаления задачи
+  handleTaskDelete = (id) => {
+    this.setState((prevState) => ({
+      tasks: prevState.tasks.filter((task) => task.id !== id),
+    }));
+  };
+
+  //обработчик добавления новой задачи
+  handleTaskAdd = (description) => {
+    const newTask = {
+      id: Date.now(),
+      description,
+      completed: false,
+      created: new Date(),
+    };
+    this.setState((prevState) => ({
+      tasks: [...prevState.tasks, newTask],
+    }));
+  };
+
+  render() {
+    return (
+      <section className="todoapp">
+        <header className="header">
+          <h1>todos</h1>
+          <NewTaskForm onTaskAdded={this.handleTaskAdd} />
+        </header>
+        <TaskList
+          tasks={this.state.tasks}
+          onTaskToggle={this.handleTaskToggle}
+          onTaskDelete={this.handleTaskDelete}
+        />
+        <Footer />
+      </section>
+    );
+  }
+}
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
