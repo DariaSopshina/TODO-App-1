@@ -32,6 +32,7 @@ class App extends Component {
           created: new Date(Date.now() - 300000),
         },
       ],
+      filter: "active",
     };
   }
 
@@ -64,7 +65,38 @@ class App extends Component {
     }));
   };
 
+  onFilterChange = (filter) => {
+    this.setState({ filter });
+  };
+
+  filter(tasks, filter) {
+    switch (filter) {
+      case "all":
+        return tasks;
+      case "active":
+        return tasks.filter((task) => !task.completed);
+      case "completed":
+        return tasks.filter((task) => task.completed);
+      default:
+        return tasks;
+    }
+  }
+
+  //обработчик удаления завершенных задач
+  clearCompleted = () => {
+    this.setState(({ tasks }) => {
+      const newTasks = tasks.filter((task) => !task.completed);
+      return {
+        tasks: newTasks,
+      };
+    });
+  };
+
   render() {
+    const { tasks, filter } = this.state;
+    const visibleTasks = this.filter(tasks, filter); //фильтрация задач
+    const activeCount = tasks.filter((task) => !task.completed).length; //вычисляние количества активных задач
+
     return (
       <section className="todoapp">
         <header className="header">
@@ -72,11 +104,16 @@ class App extends Component {
           <NewTaskForm onTaskAdded={this.handleTaskAdd} />
         </header>
         <TaskList
-          tasks={this.state.tasks}
+          tasks={visibleTasks} //передача отфильтрованных задач
           onTaskToggle={this.handleTaskToggle}
           onTaskDelete={this.handleTaskDelete}
         />
-        <Footer />
+        <Footer
+          filter={filter}
+          onFilterChange={this.onFilterChange}
+          onClearCompeted={this.clearCompleted}
+          activeCount={activeCount} //передача количества активных задач
+        />
       </section>
     );
   }
