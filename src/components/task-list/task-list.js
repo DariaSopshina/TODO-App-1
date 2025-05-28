@@ -1,6 +1,8 @@
-import React, { Component } from "react";
-import Task from "../task/task";
-import "./task-list.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+import Task from '../task/task';
+import './task-list.css';
 
 export default class TaskList extends Component {
   render() {
@@ -25,3 +27,17 @@ export default class TaskList extends Component {
     );
   }
 }
+
+TaskList.propTypes = {
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      description: PropTypes.string.isRequired,
+      completed: PropTypes.bool,
+      created: PropTypes.instanceOf(Date),
+      editing: PropTypes.bool,
+    })
+  ).isRequired,
+  onTaskToggle: PropTypes.func.isRequired,
+  onTaskDelete: PropTypes.func.isRequired,
+};
